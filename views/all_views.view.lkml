@@ -1,125 +1,137 @@
-view: dim_sailors {
-  sql_table_name: `pr-tftest.virgin_voyage_ds.dim_sailors` ;;
-  label: "Sailors (Guests)"
+view: guests {
+  sql_table_name: `pr-tftest.vv_ds.guests` ;;
+  label: "Guests"
 
-  dimension: sailor_id {
+  dimension: guest_id {
     primary_key: yes
     hidden: yes
     type: string
-    sql: ${TABLE}.sailor_id ;;
-    description: "Unique identifier for the Sailor."
+    sql: ${TABLE}.guest_id ;;
+    description: "Unique identifier for the guest."
     group_label: "IDs"
-  }
-
-  dimension: first_name {
-    type: string
-    sql: ${TABLE}.first_name ;;
-    description: "Sailor's first name."
-    group_label: "Demographics"
-  }
-
-  dimension: last_name {
-    type: string
-    sql: ${TABLE}.last_name ;;
-    description: "Sailor's last name."
-    group_label: "Demographics"
   }
 
   dimension: full_name {
     type: string
-    sql: CONCAT(${first_name}, ' ', ${last_name}) ;;
-    description: "Sailor's full name."
+    sql: ${TABLE}.full_name ;;
+    description: "Full name of the guest."
     group_label: "Demographics"
   }
 
   dimension: age {
     type: number
     sql: ${TABLE}.age ;;
-    description: "Age of the Sailor."
+    description: "Age of the guest."
     group_label: "Demographics"
   }
 
   dimension: loyalty_tier {
     type: string
     sql: ${TABLE}.loyalty_tier ;;
-    description: "Loyalty program status tier."
-    group_label: "Loyalty & Profile"
+    description: "Loyalty program tier (Bronze, Silver, Gold, Platinum)."
+    group_label: "Loyalty"
   }
 
-  dimension: vibe_archetype {
+  dimension: country {
     type: string
-    sql: ${TABLE}.vibe_archetype ;;
-    description: "Marketing behavioral vibe archetype."
-    group_label: "Loyalty & Profile"
-  }
-
-  dimension: cohort_tag {
-    type: string
-    sql: ${TABLE}.cohort_tag ;;
-    description: "Social travel group classification."
-    group_label: "Loyalty & Profile"
-  }
-
-  dimension: past_voyages_count {
-    type: number
-    sql: ${TABLE}.past_voyages_count ;;
-    description: "Count of past completed voyages."
-    group_label: "Loyalty & Profile"
-  }
-
-  dimension: starting_loot_usd {
-    type: number
-    sql: ${TABLE}.starting_loot_usd ;;
-    description: "Initial onboard promotional loot (credit) in USD."
-    group_label: "Spending & Credit"
+    sql: ${TABLE}.country ;;
+    description: "Country of residence."
+    group_label: "Demographics"
   }
 
   measure: count {
     type: count
-    drill_fields: [sailor_id, full_name, loyalty_tier, vibe_archetype]
-    description: "Total count of unique Sailors."
+    drill_fields: [guest_id, full_name, loyalty_tier, country]
+    description: "Total count of unique guests."
   }
 
   measure: average_age {
     type: average
     sql: ${age} ;;
     value_format_name: decimal_1
-    description: "Average age of the Sailors."
-  }
-
-  measure: total_starting_loot {
-    type: sum
-    sql: ${starting_loot_usd} ;;
-    value_format_name: usd
-    description: "Total allocated starting onboard credit."
+    description: "Average age of the guests."
   }
 }
 
-view: dim_voyages {
-  sql_table_name: `pr-tftest.virgin_voyage_ds.dim_voyages` ;;
-  label: "Voyages (Cruises)"
+view: cabins {
+  sql_table_name: `pr-tftest.vv_ds.cabins` ;;
+  label: "Cabins"
 
-  dimension: voyage_id {
+  dimension: cabin_id {
     primary_key: yes
     hidden: yes
     type: string
-    sql: ${TABLE}.voyage_id ;;
-    description: "Unique identifier for the Voyage."
+    sql: ${TABLE}.cabin_id ;;
+    description: "Unique identifier for the cabin."
     group_label: "IDs"
   }
 
-  dimension: ship_name {
+  dimension: ship_code {
     type: string
-    sql: ${TABLE}.ship_name ;;
-    description: "Name of the vessel."
-    group_label: "Vessel Details"
+    sql: ${TABLE}.ship_code ;;
+    description: "Code identifying the cruise ship."
+    group_label: "Ship Details"
+  }
+
+  dimension: deck_number {
+    type: number
+    sql: ${TABLE}.deck_number ;;
+    description: "Deck number where the cabin is located."
+    group_label: "Cabin Specs"
+  }
+
+  dimension: cabin_category {
+    type: string
+    sql: ${TABLE}.cabin_category ;;
+    description: "Category of the cabin (Interior, Oceanview, Balcony, Suite)."
+    group_label: "Cabin Specs"
+  }
+
+  dimension: capacity {
+    type: number
+    sql: ${TABLE}.capacity ;;
+    description: "Maximum guest capacity of the cabin."
+    group_label: "Cabin Specs"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [cabin_id, ship_code, deck_number, cabin_category]
+    description: "Total count of physical cabins."
+  }
+
+  measure: total_capacity {
+    type: sum
+    sql: ${capacity} ;;
+    description: "Total guest capacity across all cabins."
+  }
+}
+
+view: cruises {
+  sql_table_name: `pr-tftest.vv_ds.cruises` ;;
+  label: "Cruises (Sailings)"
+
+  dimension: cruise_id {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${TABLE}.cruise_id ;;
+    description: "Unique identifier for the cruise sailing."
+    group_label: "IDs"
+  }
+
+  dimension: ship_code {
+    type: string
+    sql: ${TABLE}.ship_code ;;
+    description: "Code identifying the cruise ship."
+    group_label: "Sailing Details"
   }
 
   dimension: itinerary_name {
     type: string
     sql: ${TABLE}.itinerary_name ;;
-    description: "Name of the voyage route or itinerary."
-    group_label: "Itinerary"
+    description: "Name of the itinerary or route."
+    group_label: "Sailing Details"
   }
 
   dimension_group: departure {
@@ -127,8 +139,8 @@ view: dim_voyages {
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: date
-    sql: ${TABLE}.embarkation_date ;;
-    description: "Date the voyage sets sail."
+    sql: ${TABLE}.departure_date ;;
+    description: "Date the cruise departs."
   }
 
   dimension_group: return {
@@ -137,81 +149,255 @@ view: dim_voyages {
     convert_tz: no
     datatype: date
     sql: ${TABLE}.return_date ;;
-    description: "Date the voyage concludes."
-  }
-
-  dimension: capacity_max {
-    type: number
-    sql: ${TABLE}.capacity_max ;;
-    description: "Maximum guest capacity of the voyage."
-    group_label: "Capacities"
-  }
-
-  dimension: guests_booked {
-    type: number
-    sql: ${TABLE}.guests_booked ;;
-    description: "Total number of booked guests."
-    group_label: "Capacities"
+    description: "Date the cruise returns."
   }
 
   measure: count {
     type: count
-    drill_fields: [voyage_id, ship_name, itinerary_name, departure_date]
-    description: "Total count of unique voyages."
+    drill_fields: [cruise_id, ship_code, itinerary_name, departure_date]
+    description: "Total count of unique cruise sailings."
   }
-
-  measure: total_capacity {
-    type: sum
-    sql: ${capacity_max} ;;
-    description: "Sum of available capacity across voyages."
-  }
-
 }
 
-view: dim_locations {
-  sql_table_name: `pr-tftest.virgin_voyage_ds.dim_locations` ;;
-  label: "Onboard Locations"
+view: shore_excursions {
+  sql_table_name: `pr-tftest.vv_ds.shore_excursions` ;;
+  label: "Shore Excursions"
 
-  dimension: location_id {
+  dimension: excursion_id {
     primary_key: yes
     hidden: yes
     type: string
-    sql: ${TABLE}.location_id ;;
-    description: "Unique identifier for the onboard location."
+    sql: ${TABLE}.excursion_id ;;
+    description: "Unique identifier for the shore excursion booking."
     group_label: "IDs"
   }
 
-  dimension: venue_name {
+  dimension: cruise_id {
+    hidden: yes
     type: string
-    sql: ${TABLE}.venue_name ;;
-    description: "Name of the venue or facility."
-    group_label: "Venue Info"
+    sql: ${TABLE}.cruise_id ;;
+    description: "Associated cruise sailing ID."
   }
 
-  dimension: venue_category {
+  dimension: guest_id {
+    hidden: yes
     type: string
-    sql: ${TABLE}.venue_category ;;
-    description: "Category of venue (Dining, Wellness, Retail, Entertainment)."
-    group_label: "Venue Info"
+    sql: ${TABLE}.guest_id ;;
+    description: "Guest who booked the excursion."
   }
 
-  dimension: deck_level {
+  dimension: excursion_name {
+    type: string
+    sql: ${TABLE}.excursion_name ;;
+    description: "Name of the shore excursion."
+    group_label: "Excursion Info"
+  }
+
+  dimension_group: booking {
+    type: time
+    timeframes: [raw, date, week, month]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.booking_date ;;
+    description: "Date the excursion was booked."
+  }
+
+  dimension: price_usd {
     type: number
-    sql: ${TABLE}.deck_level ;;
-    description: "Deck level where the venue resides."
-    group_label: "Venue Info"
+    sql: ${TABLE}.price_usd ;;
+    description: "Price paid for the excursion in USD."
+    group_label: "Financials"
+  }
+
+  dimension: satisfaction_score {
+    type: number
+    sql: ${TABLE}.satisfaction_score ;;
+    description: "Guest satisfaction rating from 1 to 5."
+    group_label: "Ratings"
   }
 
   measure: count {
     type: count
-    drill_fields: [location_id, venue_name, venue_category]
-    description: "Total count of onboard locations."
+    drill_fields: [excursion_id, excursion_name, booking_date, price_usd]
+    description: "Total count of excursion bookings."
+  }
+
+  measure: total_revenue {
+    type: sum
+    sql: ${price_usd} ;;
+    value_format_name: usd
+    description: "Total revenue generated from shore excursions."
+  }
+
+  measure: average_satisfaction {
+    type: average
+    sql: ${satisfaction_score} ;;
+    value_format_name: decimal_2
+    description: "Average guest satisfaction score for excursions."
   }
 }
 
-view: fact_surveys {
-  sql_table_name: `pr-tftest.virgin_voyage_ds.fact_surveys` ;;
-  label: "Post-Voyage Surveys"
+view: onboard_purchases {
+  sql_table_name: `pr-tftest.vv_ds.onboard_purchases` ;;
+  label: "Onboard Purchases"
+
+  dimension: purchase_id {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${TABLE}.purchase_id ;;
+    description: "Unique identifier for the onboard transaction."
+    group_label: "IDs"
+  }
+
+  dimension: cruise_id {
+    hidden: yes
+    type: string
+    sql: ${TABLE}.cruise_id ;;
+    description: "Associated cruise sailing ID."
+  }
+
+  dimension: guest_id {
+    hidden: yes
+    type: string
+    sql: ${TABLE}.guest_id ;;
+    description: "Guest who made the purchase."
+  }
+
+  dimension_group: transaction {
+    type: time
+    timeframes: [raw, time, date, week, month]
+    sql: ${TABLE}.transaction_timestamp ;;
+    description: "Timestamp when the purchase occurred."
+  }
+
+  dimension: category {
+    type: string
+    sql: ${TABLE}.category ;;
+    description: "Category of purchase (Dining, Spa, Casino, Beverage, Retail)."
+    group_label: "Transaction Info"
+  }
+
+  dimension: amount_usd {
+    type: number
+    sql: ${TABLE}.amount_usd ;;
+    description: "Transaction amount in USD."
+    group_label: "Financials"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [purchase_id, category, transaction_time, amount_usd]
+    description: "Total number of onboard spending transactions."
+  }
+
+  measure: total_onboard_revenue {
+    type: sum
+    sql: ${amount_usd} ;;
+    value_format_name: usd
+    description: "Total financial revenue from onboard spending."
+  }
+
+  measure: average_spend_per_transaction {
+    type: average
+    sql: ${amount_usd} ;;
+    value_format_name: usd
+    description: "Average transaction spend amount."
+  }
+}
+
+view: ship_amenities {
+  sql_table_name: `pr-tftest.vv_ds.ship_amenities` ;;
+  label: "Ship Amenities"
+
+  dimension: amenity_id {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${TABLE}.amenity_id ;;
+    description: "Unique identifier for the ship amenity."
+    group_label: "IDs"
+  }
+
+  dimension: ship_code {
+    type: string
+    sql: ${TABLE}.ship_code ;;
+    description: "Code identifying the cruise ship."
+    group_label: "Facility Info"
+  }
+
+  dimension: amenity_name {
+    type: string
+    sql: ${TABLE}.amenity_name ;;
+    description: "Name of the facility or amenity."
+    group_label: "Facility Info"
+  }
+
+  dimension: amenity_type {
+    type: string
+    sql: ${TABLE}.amenity_type ;;
+    description: "Type of amenity (Dining, Entertainment, Relaxation)."
+    group_label: "Facility Info"
+  }
+
+  dimension: is_operational {
+    type: yesno
+    sql: ${TABLE}.is_operational ;;
+    description: "Whether the amenity is fully operational."
+    group_label: "Facility Info"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [amenity_id, amenity_name, amenity_type, is_operational]
+    description: "Total count of permanent ship amenities."
+  }
+}
+
+view: staffing {
+  sql_table_name: `pr-tftest.vv_ds.staffing` ;;
+  label: "Staffing"
+
+  dimension: staff_id {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${TABLE}.staff_id ;;
+    description: "Unique staff identifier."
+    group_label: "IDs"
+  }
+
+  dimension: ship_code {
+    type: string
+    sql: ${TABLE}.ship_code ;;
+    description: "Code identifying the cruise ship."
+    group_label: "Crew Info"
+  }
+
+  dimension: role {
+    type: string
+    sql: ${TABLE}.role ;;
+    description: "Job title or role on the ship."
+    group_label: "Crew Info"
+  }
+
+  dimension: department {
+    type: string
+    sql: ${TABLE}.department ;;
+    description: "Shipboard department (Hospitality, Deck, Engine, Entertainment)."
+    group_label: "Crew Info"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [staff_id, role, department]
+    description: "Total count of crew members."
+  }
+}
+
+view: surveys {
+  sql_table_name: `pr-tftest.vv_ds.surveys` ;;
+  label: "Guest Surveys"
 
   dimension: survey_id {
     primary_key: yes
@@ -222,141 +408,81 @@ view: fact_surveys {
     group_label: "IDs"
   }
 
-  dimension: sailor_id {
+  dimension: cruise_id {
     hidden: yes
     type: string
-    sql: ${TABLE}.sailor_id ;;
-    description: "Foreign key linking to the Sailor."
+    sql: ${TABLE}.cruise_id ;;
+    description: "Associated cruise sailing ID."
   }
 
-  dimension: voyage_id {
+  dimension: guest_id {
     hidden: yes
     type: string
-    sql: ${TABLE}.voyage_id ;;
-    description: "Foreign key linking to the Voyage."
+    sql: ${TABLE}.guest_id ;;
+    description: "Guest who submitted the survey."
   }
 
-  dimension: nps_score {
+  dimension_group: submission {
+    type: time
+    timeframes: [raw, date, week, month]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.submission_date ;;
+    description: "Date the survey was submitted."
+  }
+
+  dimension: overall_rating {
     type: number
-    sql: ${TABLE}.nps_score ;;
-    description: "Net Promoter Score provided by the guest (0-10)."
-    group_label: "Scores"
+    sql: ${TABLE}.overall_rating ;;
+    description: "Overall satisfaction score from 1 to 5."
+    group_label: "Ratings"
   }
 
-  dimension: overall_satisfaction {
+  dimension: service_rating {
     type: number
-    sql: ${TABLE}.overall_satisfaction ;;
-    description: "Overall satisfaction rating (0-10)."
-    group_label: "Scores"
+    sql: ${TABLE}.service_rating ;;
+    description: "Service quality rating from 1 to 5."
+    group_label: "Ratings"
   }
 
-  dimension: return_intent {
-    type: string
-    sql: ${TABLE}.return_intent ;;
-    description: "Guest intent to return (Yes, Maybe, No)."
-    group_label: "Sentiment & Feedback"
+  dimension: cleanliness_rating {
+    type: number
+    sql: ${TABLE}.cleanliness_rating ;;
+    description: "Cleanliness rating from 1 to 5."
+    group_label: "Ratings"
   }
 
-  dimension: sentiment_classification {
+  dimension: feedback_text {
     type: string
-    sql: ${TABLE}.sentiment_classification ;;
-    description: "NLP sentiment classification label (Epic, Passive, Detractor)."
-    group_label: "Sentiment & Feedback"
-  }
-
-  dimension: feedback_verbatim {
-    type: string
-    sql: ${TABLE}.feedback_verbatim ;;
-    description: "Qualitative feedback verbatim comments."
-    group_label: "Sentiment & Feedback"
+    sql: ${TABLE}.feedback_text ;;
+    description: "Optional qualitative comments from the guest."
+    group_label: "Feedback"
   }
 
   measure: count {
     type: count
-    drill_fields: [survey_id, dim_sailors.full_name, overall_satisfaction, sentiment_classification]
+    drill_fields: [survey_id, overall_rating, submission_date]
     description: "Total count of submitted surveys."
   }
 
-  measure: average_nps_score {
+  measure: average_overall_rating {
     type: average
-    sql: ${nps_score} ;;
+    sql: ${overall_rating} ;;
     value_format_name: decimal_2
-    description: "Average Net Promoter Score."
+    description: "Average overall satisfaction score."
   }
 
-  measure: average_overall_satisfaction {
+  measure: average_service_rating {
     type: average
-    sql: ${overall_satisfaction} ;;
+    sql: ${service_rating} ;;
     value_format_name: decimal_2
-    description: "Average overall satisfaction rating out of 10."
-  }
-}
-
-view: fact_touchpoints {
-  sql_table_name: `pr-tftest.virgin_voyage_ds.fact_touchpoints` ;;
-  label: "Onboard Touchpoints & Spending"
-
-  dimension: touchpoint_id {
-    primary_key: yes
-    hidden: yes
-    type: string
-    sql: ${TABLE}.touchpoint_id ;;
-    description: "Unique identifier for the transaction or interaction."
-    group_label: "IDs"
+    description: "Average service quality score."
   }
 
-  dimension: sailor_id {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.sailor_id ;;
-    description: "Foreign key linking to the Sailor."
-  }
-
-  dimension: voyage_id {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.voyage_id ;;
-    description: "Foreign key linking to the Voyage."
-  }
-
-  dimension: location_id {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.location_id ;;
-    description: "Foreign key linking to the onboard location."
-  }
-
-  dimension_group: interaction {
-    type: time
-    timeframes: [raw, time, date, week, month]
-    sql: ${TABLE}.interaction_timestamp ;;
-    description: "Timestamp when the touchpoint occurred."
-  }
-
-  dimension: spend_amount_usd {
-    type: number
-    sql: ${TABLE}.spend_amount_usd ;;
-    description: "Transaction spending amount in USD."
-    group_label: "Financials"
-  }
-
-  measure: count {
-    type: count
-    drill_fields: [touchpoint_id, dim_locations.venue_name, spend_amount_usd]
-    description: "Total count of onboard touchpoint events."
-  }
-
-  measure: total_onboard_revenue {
-    type: sum
-    sql: ${spend_amount_usd} ;;
-    value_format_name: usd
-    description: "Total onboard financial revenue generated."
-  }
-
-  measure: average_spend_per_transaction {
+  measure: average_cleanliness_rating {
     type: average
-    sql: ${spend_amount_usd} ;;
-    value_format_name: usd
-    description: "Average spending amount per transaction."
+    sql: ${cleanliness_rating} ;;
+    value_format_name: decimal_2
+    description: "Average cleanliness rating."
   }
 }

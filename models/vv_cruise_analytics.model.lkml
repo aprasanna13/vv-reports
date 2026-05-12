@@ -1,33 +1,52 @@
 connection: "default_bigquery_connection"
 
+
 include: "/views/*.view.lkml"
 include: "/dashboards/*.dashboard.lookml"
 
-explore: dim_voyages {
-  label: "Executive Cruise Performance & Telemetry"
-  description: "Comprehensive enterprise Explore joining voyage capacities, guest spending, and survey sentiment."
+explore: cruises {
+  label: "Executive Cruise Operations & Telemetry"
+  description: "Central Explore joining fleet schedules, onboard purchasing transactions, excursion facts, and guest surveys."
 
-  join: fact_touchpoints {
+  join: cabins {
     type: left_outer
     relationship: one_to_many
-    sql_on: ${dim_voyages.voyage_id} = ${fact_touchpoints.voyage_id} ;;
+    sql_on: ${cruises.ship_code} = ${cabins.ship_code} ;;
   }
 
-  join: dim_sailors {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${fact_touchpoints.sailor_id} = ${dim_sailors.sailor_id} ;;
-  }
-
-  join: dim_locations {
-    type: left_outer
-    relationship: many_to_one
-    sql_on: ${fact_touchpoints.location_id} = ${dim_locations.location_id} ;;
-  }
-
-  join: fact_surveys {
+  join: onboard_purchases {
     type: left_outer
     relationship: one_to_many
-    sql_on: ${dim_voyages.voyage_id} = ${fact_surveys.voyage_id} ;;
+    sql_on: ${cruises.cruise_id} = ${onboard_purchases.cruise_id} ;;
+  }
+
+  join: guests {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${onboard_purchases.guest_id} = ${guests.guest_id} ;;
+  }
+
+  join: shore_excursions {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${cruises.cruise_id} = ${shore_excursions.cruise_id} ;;
+  }
+
+  join: surveys {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${cruises.cruise_id} = ${surveys.cruise_id} ;;
+  }
+
+  join: ship_amenities {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${cruises.ship_code} = ${ship_amenities.ship_code} ;;
+  }
+
+  join: staffing {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${cruises.ship_code} = ${staffing.ship_code} ;;
   }
 }
