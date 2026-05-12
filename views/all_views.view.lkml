@@ -166,18 +166,6 @@ view: dim_voyages {
     description: "Sum of available capacity across voyages."
   }
 
-  measure: total_guests_booked {
-    type: sum
-    sql: ${guests_booked} ;;
-    description: "Sum of actual booked guests across voyages."
-  }
-
-  measure: occupancy_rate {
-    type: number
-    sql: SAFE_DIVIDE(${total_guests_booked}, ${total_capacity}) ;;
-    value_format_name: percent_1
-    description: "Overall occupancy rate percentage."
-  }
 }
 
 view: dim_locations {
