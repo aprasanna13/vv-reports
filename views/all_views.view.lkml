@@ -127,7 +127,7 @@ view: dim_voyages {
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: date
-    sql: ${TABLE}.departure_date ;;
+    sql: ${TABLE}.embarkation_date ;;
     description: "Date the voyage sets sail."
   }
 
