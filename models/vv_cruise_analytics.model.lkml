@@ -49,4 +49,10 @@ explore: cruises {
     relationship: one_to_many
     sql_on: ${cruises.ship_code} = ${staffing.ship_code} ;;
   }
+
+  join: guest_touchpoint_feedback {
+    type: left_outer
+    relationship: one_to_many
+    sql_on: ${cruises.cruise_id} = ${guest_touchpoint_feedback.cruise_id} ;;
+  }
 }

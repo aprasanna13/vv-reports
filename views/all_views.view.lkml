@@ -485,4 +485,113 @@ view: surveys {
     value_format_name: decimal_2
     description: "Average cleanliness rating."
   }
+
+  dimension: cleanliness_service_variance {
+    type: number
+    sql: ${cleanliness_rating} - ${service_rating} ;;
+    description: "Centered variance between physical cleanliness and staff service ratings."
+    group_label: "Ratings"
+  }
+
+  measure: average_cleanliness_service_variance {
+    type: average
+    sql: ${cleanliness_service_variance} ;;
+    value_format_name: decimal_2
+    description: "Average cleanliness vs. service variance."
+  }
+}
+
+view: guest_touchpoint_feedback {
+  sql_table_name: `pr-tftest.vv_ds.guest_touchpoint_feedback` ;;
+  label: "Guest Touchpoint Feedback"
+
+  dimension: feedback_id {
+    primary_key: yes
+    hidden: yes
+    type: string
+    sql: ${TABLE}.feedback_id ;;
+    description: "Unique identifier for the touchpoint feedback record."
+    group_label: "IDs"
+  }
+
+  dimension: guest_id {
+    hidden: yes
+    type: string
+    sql: ${TABLE}.guest_id ;;
+    description: "Associated guest identifier."
+  }
+
+  dimension: cruise_id {
+    hidden: yes
+    type: string
+    sql: ${TABLE}.cruise_id ;;
+    description: "Associated cruise sailing identifier."
+  }
+
+  dimension: stage_name {
+    type: string
+    sql: ${TABLE}.stage_name ;;
+    description: "Name of the vacation lifecycle stage."
+    group_label: "Lifecycle Stage"
+  }
+
+  dimension: stage_sort_index {
+    type: number
+    sql: ${TABLE}.stage_sort_index ;;
+    description: "Chronological integer sorting index for the stage (1 to 6)."
+    group_label: "Lifecycle Stage"
+  }
+
+  dimension: rating {
+    type: number
+    sql: ${TABLE}.rating ;;
+    description: "Satisfaction rating for this specific stage (1 to 5)."
+    group_label: "Ratings"
+  }
+
+  dimension: extracted_theme {
+    type: string
+    sql: ${TABLE}.extracted_theme ;;
+    description: "Qualitative thematic classification extracted from verbatim feedback."
+    group_label: "Feedback"
+  }
+
+  dimension: feedback_text {
+    type: string
+    sql: ${TABLE}.feedback_text ;;
+    description: "Raw verbatim text comment provided by the guest."
+    group_label: "Feedback"
+  }
+
+  dimension: sentiment_score {
+    type: number
+    sql: ${TABLE}.sentiment_score ;;
+    description: "Correlated sentiment impact score from -1.0 to 1.0."
+    group_label: "Feedback"
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [feedback_id, stage_name, rating, extracted_theme]
+    description: "Total count of feedback records."
+  }
+
+  measure: average_stage_rating {
+    type: average
+    sql: ${rating} ;;
+    value_format_name: decimal_2
+    description: "Average satisfaction rating per lifecycle stage."
+  }
+
+  measure: average_sentiment_score {
+    type: average
+    sql: ${sentiment_score} ;;
+    value_format_name: decimal_2
+    description: "Average sentiment score."
+  }
+
+  measure: mention_frequency {
+    type: count
+    description: "Frequency of specific theme mentions."
+  }
 }
