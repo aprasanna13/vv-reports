@@ -80,7 +80,8 @@
 
     - name: spend_by_category
       title: "Onboard Revenue by Category"
-      type: looker_donut_multi
+      type: looker_pie
+      inner_radius: 50
       model: vv_cruise_analytics
       explore: cruises
       dimensions: [onboard_purchases.category]
